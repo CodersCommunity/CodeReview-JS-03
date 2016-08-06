@@ -1,138 +1,93 @@
-var haslo = "Bez pracy nie ma kołaczy";
-haslo = haslo.toUpperCase();
+(function () {
+	'use strict';
 
-var dlugosc = haslo.length;
-var ile_skuch = 0;
+	var lettersWrapper = document.getElementById('alphabet');
+	var imageWrapper = document.getElementById('image-wrapper');
+	var resultElement = document.getElementById('result');
+	var lettersToWrap = 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPQRSŚTUVWXYZŻŹ';
+	var phraseToGuess = 'BEZ PRACY NIE MA KOŁACZY';
+	var maxFailsNumber = 9;
+	var sounds = {
+		success: new Audio('./sounds/success.wav'),
+		fail: new Audio('./sounds/fail.wav')
+	};
+	var guessFails = 0;
+	var uncoveredLetters = [];
 
-var yes = new Audio("./sounds/yes.wav");
-var no = new Audio("./sounds/no.wav");
+	function updateImage() {
+		imageWrapper.innerHTML = '';
 
-var haslo1 = "";
+		var image = imageWrapper.appendChild(document.createElement('img'));
+		image.src = './img/s' + guessFails + '.jpg';
+	};
 
-for (i=0; i<dlugosc; i++)
-{
-	if (haslo.charAt(i)==" ") haslo1 = haslo1 + " ";
-	else haslo1 = haslo1 + "-";
-}
+	function updateResult() {
+		resultElement.innerHTML = phraseToGuess.split('').map(function (phraseLetter) {
+			if (phraseLetter === ' ' || uncoveredLetters.indexOf(phraseLetter) > -1) {
+				return phraseLetter;
+			}
 
-function wypisz_haslo()
-{
-	document.getElementById("plansza").innerHTML = haslo1;
-}
+			return '-';
+		}).join('');
+	};
 
-window.onload = start;
+	function discoverLetter(letter, letterElement) {
+		if (letterElement.classList.contains('discovered')) return;
 
-var litery = new Array(35);
+		letterElement.classList.add('discovered');
 
-litery[0] = "A";
-litery[1] = "Ą";
-litery[2] = "B";
-litery[3] = "C";
-litery[4] = "Ć";
-litery[5] = "D";
-litery[6] = "E";
-litery[7] = "Ę";
-litery[8] = "F";
-litery[9] = "G";
-litery[10] = "H";
-litery[11] = "I";
-litery[12] = "J";
-litery[13] = "K";
-litery[14] = "L";
-litery[15] = "Ł";
-litery[16] = "M";
-litery[17] = "N";
-litery[18] = "Ń";
-litery[19] = "O";
-litery[20] = "Ó";
-litery[21] = "P";
-litery[22] = "Q";
-litery[23] = "R";
-litery[24] = "S";
-litery[25] = "Ś";
-litery[26] = "T";
-litery[27] = "U";
-litery[28] = "V";
-litery[29] = "W";
-litery[30] = "X";
-litery[31] = "Y";
-litery[32] = "Z";
-litery[33] = "Ż";
-litery[34] = "Ź";
+		if (phraseToGuess.indexOf(letter) > -1) {
+			letterElement.classList.add('success');
+			sounds.success.play();
+			uncoveredLetters.push(letter);
+			updateResult();
 
+			var isGuessed = phraseToGuess.split('').every(function (letter) {
+				return letter === ' ' || uncoveredLetters.indexOf(letter) > -1;
+			});
 
+			if (isGuessed) showResult(true);
+		} else {
+			letterElement.classList.add('fail');
+			sounds.fail.play();
 
-function start()
-{
-
-	var tresc_diva ="";
-
-	for (i=0; i<=34; i++)
-	{
-		var element = "lit" + i;
-		tresc_diva = tresc_diva + '<div class="litera" onclick="sprawdz('+i+')" id="'+element+'">'+litery[i]+'</div>';
-		if ((i+1) % 7 ==0) tresc_diva = tresc_diva + '<div style="clear:both;"></div>';
-	}
-
-	document.getElementById("alfabet").innerHTML = tresc_diva;
-
-
-	wypisz_haslo();
-}
-
-String.prototype.ustawZnak = function(miejsce, znak)
-{
-	if (miejsce > this.length - 1) return this.toString();
-	else return this.substr(0, miejsce) + znak + this.substr(miejsce+1);
-}
-
-
-function sprawdz(nr)
-{
-
-	var trafiona = false;
-
-	for(i=0; i<dlugosc; i++)
-	{
-		if (haslo.charAt(i) == litery[nr])
-		{
-			haslo1 = haslo1.ustawZnak(i,litery[nr]);
-			trafiona = true;
+			if (++guessFails > maxFailsNumber) showResult(false);
+			else updateImage();
 		}
-	}
+	};
 
-	if(trafiona == true)
-	{
-		yes.play();
-		var element = "lit" + nr;
-		document.getElementById(element).style.background = "#003300";
-		document.getElementById(element).style.color = "#00C000";
-		document.getElementById(element).style.border = "3px solid #00C000";
-		document.getElementById(element).style.cursor = "default";
+	function showResult(state) {
+		var gameState = ['Przegrana', 'Wygrana'][+state];
+		var resetElement = document.createElement('a');
 
-		wypisz_haslo();
-	}
-	else
-	{
-		no.play();
-		var element = "lit" + nr;
-		document.getElementById(element).style.background = "#330000";
-		document.getElementById(element).style.color = "#C00000";
-		document.getElementById(element).style.border = "3px solid #C00000";
-		document.getElementById(element).style.cursor = "default";
-		document.getElementById(element).setAttribute("onclick",";");
+		resetElement.href = '';
+		resetElement.innerHTML = 'JESZCZE RAZ?';
+		resetElement.classList.add('reset');
 
-		//skucha
-		ile_skuch++;
-		var obraz = "img/s"+ ile_skuch + ".jpg";
-		document.getElementById("szubienica").innerHTML = '<img src="'+obraz+'" alt="" />';
-	}
+		lettersWrapper.innerHTML = gameState + '! Prawidłowe hasło: ' + phraseToGuess;
+		lettersWrapper.appendChild(resetElement);
+	};
 
-	//wygrana
-	if (haslo == haslo1)
-	document.getElementById("alfabet").innerHTML  = "Tak jest! Podano prawidłowe hasło: "+haslo+'<br /><br /><span class="reset" onclick="location.reload()">JESZCZE RAZ?</span>';
+	function appendLetters() {
+		lettersToWrap.split('').forEach(function (letter, index) {
+			var letterElement = lettersWrapper.appendChild(document.createElement('div'));
+			var letterPosition = index + 1;
+			var lettersInWidth = 7;
 
-	//przegrana
-	if (ile_skuch>=9)
-	document.getElementById("alfabet").innerHTML  = "Przegrana! Prawidłowe hasło: "+haslo+'<br /><br /><span class="reset" onclick="location.reload()">JESZCZE RAZ?</span>';
-}
+			if (letterPosition % lettersInWidth === 0) {
+				var clearfixElement = lettersWrapper.appendChild(document.createElement('div'));
+				clearfixElement.classList.add('clearfix');
+			}
+
+			letterElement.innerHTML = letter;
+			letterElement.classList.add('letter');
+			letterElement.addEventListener('click', function () {
+				return discoverLetter(letter, letterElement);
+			}, false);
+		});
+	};
+
+	appendLetters();
+	updateResult();
+	updateImage();
+})();
