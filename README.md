@@ -21,6 +21,7 @@ _Tak naprawdę największe zmiany zaszły w skrypcie, który nadaje grze logikę
 * Stylowanie elementów po id zostało zastąpione przez stylowanie po klasach.
 * Zlikwidowano atrybuty [style] z elementów, zamiast tego, są stylowane po klasach w arkuszu.
 * Definicja skryptu została przeniesiona przed tag </body>.
+* Zmieniono strukturę katalogów - usunięto bezużyteczny folder z szablonem projektu.
 
 ### Skrypt
 
