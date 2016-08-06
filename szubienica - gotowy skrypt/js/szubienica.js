@@ -4,8 +4,8 @@ haslo = haslo.toUpperCase();
 var dlugosc = haslo.length;
 var ile_skuch = 0;
 
-var yes = new Audio("yes.wav");
-var no = new Audio("no.wav");
+var yes = new Audio("./sounds/yes.wav");
+var no = new Audio("./sounds/no.wav");
 
 var haslo1 = "";
 
@@ -64,19 +64,19 @@ litery[34] = "Ź";
 
 function start()
 {
-	
+
 	var tresc_diva ="";
-	
+
 	for (i=0; i<=34; i++)
 	{
 		var element = "lit" + i;
 		tresc_diva = tresc_diva + '<div class="litera" onclick="sprawdz('+i+')" id="'+element+'">'+litery[i]+'</div>';
 		if ((i+1) % 7 ==0) tresc_diva = tresc_diva + '<div style="clear:both;"></div>';
 	}
-	
+
 	document.getElementById("alfabet").innerHTML = tresc_diva;
-	
-	
+
+
 	wypisz_haslo();
 }
 
@@ -89,18 +89,18 @@ String.prototype.ustawZnak = function(miejsce, znak)
 
 function sprawdz(nr)
 {
-	
+
 	var trafiona = false;
-	
+
 	for(i=0; i<dlugosc; i++)
 	{
-		if (haslo.charAt(i) == litery[nr]) 
+		if (haslo.charAt(i) == litery[nr])
 		{
 			haslo1 = haslo1.ustawZnak(i,litery[nr]);
 			trafiona = true;
 		}
 	}
-	
+
 	if(trafiona == true)
 	{
 		yes.play();
@@ -109,7 +109,7 @@ function sprawdz(nr)
 		document.getElementById(element).style.color = "#00C000";
 		document.getElementById(element).style.border = "3px solid #00C000";
 		document.getElementById(element).style.cursor = "default";
-		
+
 		wypisz_haslo();
 	}
 	else
@@ -119,19 +119,19 @@ function sprawdz(nr)
 		document.getElementById(element).style.background = "#330000";
 		document.getElementById(element).style.color = "#C00000";
 		document.getElementById(element).style.border = "3px solid #C00000";
-		document.getElementById(element).style.cursor = "default";	
-		document.getElementById(element).setAttribute("onclick",";");		
-		
+		document.getElementById(element).style.cursor = "default";
+		document.getElementById(element).setAttribute("onclick",";");
+
 		//skucha
 		ile_skuch++;
 		var obraz = "img/s"+ ile_skuch + ".jpg";
 		document.getElementById("szubienica").innerHTML = '<img src="'+obraz+'" alt="" />';
 	}
-	
+
 	//wygrana
 	if (haslo == haslo1)
 	document.getElementById("alfabet").innerHTML  = "Tak jest! Podano prawidłowe hasło: "+haslo+'<br /><br /><span class="reset" onclick="location.reload()">JESZCZE RAZ?</span>';
-	
+
 	//przegrana
 	if (ile_skuch>=9)
 	document.getElementById("alfabet").innerHTML  = "Przegrana! Prawidłowe hasło: "+haslo+'<br /><br /><span class="reset" onclick="location.reload()">JESZCZE RAZ?</span>';
